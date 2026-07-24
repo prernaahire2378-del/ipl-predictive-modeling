@@ -2,9 +2,11 @@
 
 ## 1. Project Overview
 
-This project focuses on building a machine learning classification model to predict the winning IPL team based on match-related features.
+This project focuses on building a machine learning classification model to predict the winning IPL team using historical match-related data.
 
-The main goal is to compare different machine learning models, evaluate their performance using Macro F1-score, improve the best-performing model through hyperparameter tuning, and validate its performance using cross-validation.
+The main objective is to compare multiple machine learning models, evaluate their performance using suitable classification metrics, handle class imbalance, perform hyperparameter tuning, and select the best-performing model based on the Macro F1-score.
+
+The project follows an end-to-end machine learning workflow, including data preparation, preprocessing, model training, evaluation, cross-validation, hyperparameter tuning, oversampling, and final model selection.
 
 ---
 
@@ -12,19 +14,33 @@ The main goal is to compare different machine learning models, evaluate their pe
 
 Can we predict the winning IPL team using historical match-related information and machine learning techniques?
 
-This project aims to identify the model that performs best at classifying IPL match winners across multiple teams.
+The objective is to identify a machine learning model that can classify the winning team across multiple IPL team categories while maintaining balanced performance across both majority and minority classes.
 
 ---
 
 ## 3. Problem Type
 
-This is a **Multiclass Classification** problem because the target variable `winner` contains multiple IPL team categories.
+This project is a **Multiclass Classification** problem because the target variable `winner` contains multiple IPL team categories.
 
 ### Target Variable (y)
+
 - `winner`
 
+The target variable represents the IPL team that won the match.
+
 ### Features (X)
-The remaining relevant match-related columns used for prediction.
+
+The following input features were used for prediction:
+
+- `season`
+- `city`
+- `match_type`
+- `venue`
+- `team1`
+- `team2`
+- `toss_winner`
+- `toss_decision`
+- `super_over`
 
 The target column `winner` was separated from the input features before model training.
 
@@ -32,15 +48,13 @@ The target column `winner` was separated from the input features before model tr
 
 ## 4. Dataset
 
-The project uses historical IPL match data.
+The project uses historical IPL match data containing information related to IPL matches, teams, venues, seasons, toss decisions, and match outcomes.
 
-The dataset contains information related to IPL matches, including match and team-related features.
-
-The target variable is:
+The target variable used for prediction is:
 
 - `winner` – The team that won the match.
 
-The data was loaded and cleaned within the predictive modeling notebook to keep the project self-contained.
+The data loading and preprocessing steps are included within the predictive modeling notebook to keep the project self-contained.
 
 ---
 
@@ -49,26 +63,47 @@ The data was loaded and cleaned within the predictive modeling notebook to keep 
 The following preprocessing steps were performed:
 
 - Loaded the IPL dataset.
-- Checked data types and missing values.
-- Cleaned the dataset and prepared relevant features.
-- Separated features (`X`) and target (`y`).
-- Split the data into training and testing sets before fitting encoders or scalers.
-- Used categorical encoding for categorical features.
-- Used numerical scaling where required.
-- Applied the fitted preprocessing steps to the test data using transform-only mode.
-- Ensured that preprocessing was performed without data leakage.
+- Checked the dataset structure and data types.
+- Checked for missing values.
+- Cleaned and prepared the relevant features.
+- Separated input features (`X`) and target variable (`y`).
+- Split the data into training and testing sets.
+- Performed preprocessing after the train-test split to avoid data leakage.
+- Applied categorical encoding to categorical features.
+- Applied feature scaling where required.
+- Fitted preprocessing transformations on the training data only.
+- Applied the fitted transformations to the test data using transform-only mode.
 
-The train-test split was performed before fitting preprocessing transformations.
+The preprocessing workflow was designed to ensure that information from the test set was not used during model training.
 
 ---
 
-## 6. Class Distribution and Imbalance
+## 6. Train-Test Split
+
+The dataset was divided into training and testing subsets before fitting the preprocessing transformations.
+
+The training data was used for:
+
+- Model training
+- Cross-validation
+- Hyperparameter tuning
+- Oversampling
+
+The test data was kept separate and was used only for final model evaluation.
+
+This approach helps provide a more reliable estimate of how the final model performs on unseen data.
+
+---
+
+## 7. Class Distribution and Imbalance
 
 The target variable contains multiple IPL teams with different numbers of observations.
 
-The class distribution was checked before model training.
+The class distribution was analyzed before model training to identify potential class imbalance.
 
-The minority classes were identified, and oversampling was applied to the training data only.
+Some teams had significantly fewer observations than others. Therefore, Random Oversampling was evaluated as a method to provide minority classes with greater representation during model training.
+
+Oversampling was applied only to the training data.
 
 ### Original Training Shape
 
@@ -78,13 +113,13 @@ The minority classes were identified, and oversampling was applied to the traini
 
 `(2185, 9)`
 
-After oversampling, each class in the training data had 115 samples.
+After oversampling, each target class in the training data had 115 samples.
 
-The test set was not oversampled to ensure that the final evaluation represented the original data distribution.
+The test set remained untouched and was not oversampled so that final evaluation was performed on the original test distribution.
 
 ---
 
-## 7. Models Trained
+## 8. Models Trained
 
 The following classification models were trained and evaluated:
 
@@ -92,15 +127,17 @@ The following classification models were trained and evaluated:
 2. Decision Tree Classifier
 3. Random Forest Classifier
 4. Tuned Logistic Regression
-5. Logistic Regression with Oversampling
+5. Logistic Regression with Random Oversampling
 
-The main evaluation metric used for model comparison was **Macro F1-score** because this is a multiclass classification problem with imbalanced class distributions.
+The models were evaluated using multiple classification metrics.
+
+The primary metric used for model selection was **Macro F1-score** because this is a multiclass classification problem with imbalanced class distributions.
 
 ---
 
-## 8. Model Evaluation
+## 9. Evaluation Metrics
 
-The models were evaluated using:
+The following metrics were used:
 
 - Accuracy
 - Precision
@@ -108,7 +145,9 @@ The models were evaluated using:
 - Macro F1-score
 - Confusion Matrix
 
-### Model Comparison
+---
+
+## 10. Model Comparison
 
 | Model | Accuracy | Precision | Recall | Macro F1 |
 |---|---:|---:|---:|---:|
@@ -118,11 +157,13 @@ The models were evaluated using:
 | Tuned Logistic Regression | 0.5183 | 0.5344 | 0.5906 | **0.5526** |
 | Logistic Regression + Oversampling | 0.5780 | 0.4889 | 0.5637 | 0.5079 |
 
+The Tuned Logistic Regression model achieved the highest Macro F1-score.
+
 ---
 
-## 9. Cross-Validation
+## 11. Cross-Validation
 
-5-fold cross-validation was performed to evaluate the stability of the best-performing model.
+5-fold cross-validation was performed.
 
 ### Original Logistic Regression
 
@@ -133,17 +174,11 @@ The models were evaluated using:
 
 - Best Cross-Validation Macro F1: `0.4554`
 
-The tuned model showed an improvement over the original Logistic Regression model during cross-validation.
-
 ---
 
-## 10. Hyperparameter Tuning
+## 12. Hyperparameter Tuning
 
-Hyperparameter tuning was performed using `GridSearchCV`.
-
-The search was performed using a pipeline containing preprocessing and the Logistic Regression model.
-
-The tuning process used **Macro F1-score** as the scoring metric.
+GridSearchCV was used.
 
 ### Best Parameters
 
@@ -154,61 +189,128 @@ The tuning process used **Macro F1-score** as the scoring metric.
 
 `0.4554`
 
-The tuned Logistic Regression model achieved a higher Macro F1-score than the original Logistic Regression model.
-
 ---
 
-## 11. Oversampling
+## 13. Oversampling
 
-Because the target classes were imbalanced, oversampling was applied to the training data only.
+Random Oversampling was applied only on the training data.
 
-The purpose was to give minority classes more representation during model training.
-
-### Logistic Regression with Oversampling
+### Logistic Regression + Oversampling
 
 - Accuracy: `0.5780`
 - Precision: `0.4889`
 - Recall: `0.5637`
 - Macro F1: `0.5079`
 
-The oversampling approach improved the Macro F1-score compared with the original Logistic Regression model but did not outperform the tuned Logistic Regression model.
+---
+
+## 14. Final Classification Report
+
+### Tuned Logistic Regression
+
+- Accuracy: `0.5183`
+- Macro Precision: `0.5344`
+- Macro Recall: `0.5906`
+- Macro F1: `0.5526`
 
 ---
 
-## 12. Final Model Selection
+## 15. Final Confusion Matrix
 
-The **Tuned Logistic Regression** model was selected as the final model.
-
-It achieved the highest test-set Macro F1-score among the evaluated models:
-
-**Test Macro F1-score: 0.5526**
-
-The model was selected because Macro F1-score gives equal importance to each class and is more appropriate for this multiclass classification problem with imbalanced team representation.
-
-The tuned model also improved the Macro F1-score from `0.4878` to `0.5526` compared with the original Logistic Regression model.
+A confusion matrix was generated to visualize the classification performance of the final model and identify correctly classified and misclassified IPL teams.
 
 ---
 
-## 13. Final Model Recommendation
+## 16. Final Model Selection
 
-The Tuned Logistic Regression model is recommended as the final model for this project because it achieved the highest Macro F1-score of `0.5526` on the test set. Hyperparameter tuning improved the model's balanced classification performance across the different IPL team classes. Although the model does not predict every team equally well, it provided the best overall Macro F1-score among the tested approaches and was therefore selected as the final model.
-
----
-
-## 14. Limitations
-
-- Some IPL teams have very few historical observations.
-- Team names have changed over different IPL seasons, which creates separate categories for some teams.
-- The dataset contains an imbalance between frequently occurring and less frequently occurring teams.
-- The model performance may be affected by the limited number of samples for some teams.
-- Historical match patterns may not always represent future IPL outcomes.
+The **Tuned Logistic Regression** model was selected because it achieved the highest Macro F1-score among all evaluated models.
 
 ---
 
-## 15. Conclusion
+## 17. Final Model Recommendation
 
-This project demonstrated a complete machine learning workflow for a multiclass classification problem.
+The Tuned Logistic Regression model is recommended as the final predictive model for IPL winner prediction because it provides the most balanced performance across all classes.
 
-The workflow included data preparation, train-test splitting, categorical encoding, feature scaling, model training, model comparison, cross-validation, hyperparameter tuning, oversampling, and final model selection.
+---
 
-Among the evaluated models, **Tuned Logistic Regression** achieved the best test Macro F1-score of **0.5526** and was selected as the final model.
+## 18. Results Summary
+
+| Metric | Value |
+|---------|------:|
+| Accuracy | 51.83% |
+| Macro Precision | 53.44% |
+| Macro Recall | 59.06% |
+| Macro F1-score | **55.26%** |
+
+### Final Model
+
+**Tuned Logistic Regression**
+
+---
+
+## 19. Key Findings
+
+- Logistic Regression provided a strong baseline.
+- Hyperparameter tuning improved Macro F1-score.
+- Oversampling improved minority class prediction.
+- Decision Tree showed the weakest performance.
+- Tuned Logistic Regression achieved the best overall balanced performance.
+
+---
+
+## 20. Limitations
+
+- Some IPL teams have fewer historical observations.
+- Class imbalance affects prediction quality.
+- Historical match data cannot perfectly predict future outcomes.
+- Additional player statistics and match conditions could further improve performance.
+
+---
+
+## 21. Technologies Used
+
+- Python
+- Pandas
+- NumPy
+- Scikit-learn
+- Imbalanced-learn
+- Matplotlib
+- Seaborn
+- Google Colab
+- GitHub
+
+---
+
+## 22. Project Structure
+
+```text
+ipl-predictive-modeling/
+│
+├── IPL_Predictive_Modeling.ipynb
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## 23. Reproducibility
+
+1. Clone the repository.
+2. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Open the notebook.
+4. Run all cells sequentially.
+
+---
+
+## 24. Conclusion
+
+This project demonstrates an end-to-end machine learning workflow for predicting IPL match winners using multiclass classification.
+
+Different machine learning models were compared, cross-validation and hyperparameter tuning were performed, and class imbalance was addressed using Random Oversampling.
+
+Among all evaluated models, the **Tuned Logistic Regression** model achieved the highest **Macro F1-score (0.5526)** and was selected as the final recommended model for predicting IPL match winners.
